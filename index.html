@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Feed Your Dragons">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#764ba2">
+    <meta name="msapplication-TileColor" content="#667eea">
+
+    <!-- App Description -->
+    <meta name="description" content="A judgment-free tool to help teens understand their anxiety patterns and build resilience through daily choices.">
+    <meta name="keywords" content="anxiety, teen mental health, resilience, mindfulness, coping skills">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="./icon-192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="./icon-512.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="./icon-192.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./icon-192.png">
+
+    <!-- Apple Splash Screens -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-startup-image" href="./icon-512.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
+    <title>Feed Your Dragons: Teen Anxiety Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            padding: 20px;
+            min-height: 100vh;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes dragonGrow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(var(--target-scale, 1)); }
+        }
+
+        @keyframes calmGlow {
+            0% { filter: drop-shadow(0 0 5px #4299e1); }
+            50% { filter: drop-shadow(0 0 20px #4299e1) drop-shadow(0 0 30px #4299e1); }
+            100% { filter: drop-shadow(0 0 8px #4299e1); }
+        }
+
+        @keyframes worryPulse {
+            0% { filter: drop-shadow(0 0 5px #e53e3e); }
+            50% { filter: drop-shadow(0 0 15px #e53e3e) drop-shadow(0 0 25px #e53e3e); }
+            100% { filter: drop-shadow(0 0 8px #e53e3e); }
+        }
+
+        @keyframes dragonBreathe {
+            0%, 100% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1.02) translateY(-2px); }
+        }
+
+        @keyframes dragonFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-3px) rotate(1deg); }
+            50% { transform: translateY(-6px) rotate(0deg); }
+            75% { transform: translateY(-3px) rotate(-1deg); }
+        }
+
+        @keyframes wingFlap {
+            0%, 100% { transform: scaleX(1); }
+            50% { transform: scaleX(1.1); }
+        }
+
+        @keyframes fireBreath {
+            0% {
+                content: '🐲';
+                transform: scale(1);
+            }
+            25% {
+                content: '🐲💨';
+                transform: scale(1.1);
+            }
+            50% {
+                content: '🐲🔥';
+                transform: scale(1.2);
+            }
+            75% {
+                content: '🐲💨';
+                transform: scale(1.1);
+            }
+            100% {
+                content: '🐲';
+                transform: scale(1);
+            }
+        }
+
+        @keyframes celebrateFireburst {
+            0% {
+                content: '🐲';
+                filter: hue-rotate(0deg);
+            }
+            20% {
+                content: '🐲🔥';
+                filter: hue-rotate(60deg);
+            }
+            40% {
+                content: '🐲✨';
+                filter: hue-rotate(120deg);
+            }
+            60% {
+                content: '🐲🎆';
+                filter: hue-rotate(180deg);
+            }
+            80% {
+                content: '🐲🔥';
+                filter: hue-rotate(240deg);
+            }
+            100% {
+                content: '🐲';
+                filter: hue-rotate(360deg);
+            }
+        }
+
+        .dragon-scaler {
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+
+        .dragon-emoji {
+            animation: dragonBreathe 4s ease-in-out infinite, dragonFloat 6s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+
+        .dragon-emoji::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255,165,0,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: wingFlap 2s ease-in-out infinite;
+        }
+
+        .dragon-growing-calm {
+            animation: dragonGrow 0.8s ease-out, calmGlow 1.2s ease-in-out, celebrateFireburst 1.5s ease-in-out;
+        }
+
+        .dragon-growing-worry {
+            animation: dragonGrow 0.8s ease-out, worryPulse 1.2s ease-in-out, celebrateFireburst 1.5s ease-in-out;
+        }
+
+        .dragon-fire-active::after {
+            content: '🔥';
+            position: absolute;
+            top: -10px;
+            left: 100%;
+            animation: fireBreath 0.8s ease-in-out;
+            font-size: 0.8em;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: #4a5568;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .dragon-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .dragon {
+            text-align: center;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .dragon-emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 10px;
+            transition: transform 0.6s ease;
+            position: relative;
+        }
+
+        .dragon-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .dragon-size {
+            font-size: 0.7rem;
+            color: #718096;
+        }
+
+        .calm-dragon {
+            color: #4299e1;
+        }
+
+        .worry-dragon {
+            color: #e53e3e;
+        }
+
+        .button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .button:hover, .button:active {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .button:active {
+            transform: translateY(0);
+            transition: transform 0.1s ease;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .button-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .context-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .context-card {
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border: 2px solid transparent;
+        }
+
+        .context-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .context-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .context-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .scenario-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .scenario-text {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .choice-button {
+            width: 100%;
+            padding: 15px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.3;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .choice-button:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+            transform: translateY(-1px);
+        }
+
+        .explanation {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            min-height: 60px;
+        }
+
+        .explanation.show {
+            opacity: 1;
+        }
+
+        .choices-container {
+            min-height: 200px;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .choices-container.fade-out {
+            opacity: 0;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .explanation.show {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1 50%, #e53e3e 50%);
+            transition: all 0.5s ease;
+        }
+
+        .next-button {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            color: white;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .next-button.show {
+            opacity: 1;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .mode-selection {
+            margin: 30px 0;
+        }
+
+        .mode-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+        }
+
+        .mode-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .mode-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+
+        .mode-description {
+            font-size: 0.9rem;
+            color: #718096;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+
+            .screen {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .dragon-emoji {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen active">
+            <div class="header">
+                <h1>🐲 Feed Your Dragons</h1>
+                <p class="subtitle">Discover your patterns and build calm through daily choices</p>
+            </div>
+
+            <div class="dragon-container">
+                <div class="dragon calm-dragon">
+                    <span class="dragon-emoji">🐲</span>
+                    <div class="dragon-label">Resilient Dragon</div>
+                    <div class="dragon-size">Peaceful & Wise</div>
+                </div>
+                <div class="dragon worry-dragon">
+                    <span class="dragon-emoji">🐲</span>
+                    <div class="dragon-label">Anxious Dragon</div>
+                    <div class="dragon-size">Restless & Worried</div>
+                </div>
+            </div>
+
+            <p style="text-align: center; color: #718096; margin: 20px 0; line-height: 1.4;">
+                Every choice you make feeds one of these dragons. There's no right or wrong - just patterns to notice and learn from.
+            </p>
+
+            <button class="button button-primary" onclick="showModeSelection()">
+                Start Your Journey
+            </button>
+        </div>
+
+        <!-- Mode Selection Screen -->
+        <div id="mode-screen" class="screen">
+            <div class="header">
+                <h1>Choose Your Path</h1>
+                <p class="subtitle">How would you like to explore today?</p>
+            </div>
+
+            <div class="mode-selection">
+                <div class="mode-card" onclick="selectMode('learning')">
+                    <div class="mode-title">🎓 Learning Mode</div>
+                    <div class="mode-description">Discover calm-building strategies and see what approaches work best</div>
+                </div>
+
+                <div class="mode-card" onclick="selectMode('reality')">
+                    <div class="mode-title">🪞 Reality Check</div>
+                    <div class="mode-description">Honestly track your actual patterns and notice what you typically do</div>
+                </div>
+            </div>
+
+            <button class="button button-secondary" onclick="goBack('welcome')">
+                Back
+            </button>
+        </div>
+
+        <!-- Context Selection Screen -->
+        <div id="context-screen" class="screen">
+            <div class="header">
+                <h1>Pick Your Focus</h1>
+                <p class="subtitle">What situation would you like to explore?</p>
+            </div>
+
+            <div class="context-grid">
+                <div class="context-card" onclick="selectContext('school')">
+                    <span class="context-icon">📚</span>
+                    <div class="context-name">School</div>
+                </div>
+                <div class="context-card" onclick="selectContext('social')">
+                    <span class="context-icon">👥</span>
+                    <div class="context-name">Friends</div>
+                </div>
+                <div class="context-card" onclick="selectContext('family')">
+                    <span class="context-icon">🏠</span>
+                    <div class="context-name">Family</div>
+                </div>
+                <div class="context-card" onclick="selectContext('performance')">
+                    <span class="context-icon">🎭</span>
+                    <div class="context-name">Performance</div>
+                </div>
+                <div class="context-card" onclick="selectContext('digital')">
+                    <span class="context-icon">📱</span>
+                    <div class="context-name">Digital Life</div>
+                </div>
+                <div class="context-card" onclick="selectContext('daily')">
+                    <span class="context-icon">🌅</span>
+                    <div class="context-name">Daily Habits</div>
+                </div>
+            </div>
+
+            <button class="button button-secondary" onclick="goBack('mode')">
+                Back
+            </button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="progress-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="font-size: 0.8rem; color: #718096;">Question <span id="current-question">1</span> of 5</span>
+                    <span style="font-size: 0.8rem; color: #718096;" id="session-type">Learning Mode</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="question-progress"></div>
+                </div>
+            </div>
+
+            <div class="dragon-container">
+                <div class="dragon calm-dragon">
+                    <div class="dragon-scaler" id="calm-dragon-scaler">
+                        <span class="dragon-emoji" id="calm-dragon">🐲</span>
+                    </div>
+                    <div class="dragon-label">Resilient Dragon</div>
+                    <div class="dragon-size">Size: <span id="calm-size">1</span></div>
+                </div>
+                <div class="dragon worry-dragon">
+                    <div class="dragon-scaler" id="worry-dragon-scaler">
+                        <span class="dragon-emoji" id="worry-dragon">🐲</span>
+                    </div>
+                    <div class="dragon-label">Anxious Dragon</div>
+                    <div class="dragon-size">Size: <span id="worry-size">1</span></div>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <div class="scenario-text" id="scenario-text">Loading scenario...</div>
+                <div id="choices-container"></div>
+            </div>
+
+            <div class="explanation" id="explanation">
+                <p id="explanation-text"></p>
+                <button class="button next-button" id="next-button" onclick="nextQuestion()">
+                    Next Question
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen">
+            <div class="header">
+                <h1>Your Dragon Patterns</h1>
+                <p class="subtitle">Notice what you discovered</p>
+            </div>
+
+            <div class="dragon-container">
+                <div class="dragon calm-dragon">
+                    <span class="dragon-emoji" id="final-calm-dragon">🐲</span>
+                    <div class="dragon-label">Resilient Dragon</div>
+                    <div class="dragon-size">Final Size: <span id="final-calm-size">1</span></div>
+                </div>
+                <div class="dragon worry-dragon">
+                    <span class="dragon-emoji" id="final-worry-dragon">🐲</span>
+                    <div class="dragon-label">Anxious Dragon</div>
+                    <div class="dragon-size">Final Size: <span id="final-worry-size">1</span></div>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <p id="results-message" style="text-align: center; line-height: 1.5;"></p>
+            </div>
+
+            <button class="button button-primary" onclick="restart()">
+                Try Another Context
+            </button>
+
+            <button class="button button-secondary" onclick="goBack('welcome')">
+                Start Over
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            mode: null,
+            context: null,
+            currentQuestion: 0,
+            calmSize: 1,
+            worrySize: 1,
+            totalQuestions: 5
+        };
+
+        // Comprehensive scenario database with randomization
+        const scenarios = {
+            school: [
+                {
+                    text: "You're walking to your first class and feeling nervous about a test later.",
+                    choices: [
+                        { text: "Take a few deep breaths and remind yourself you studied", effect: "calm", explanation: "Deep breathing activates your calm nervous system and positive self-talk builds confidence." },
+                        { text: "Check your phone to distract yourself from the anxiety", effect: "worry", explanation: "Distraction can provide temporary relief but doesn't address the underlying worry, and phone use often increases anxiety." },
+                        { text: "Think about all the ways you might fail the test", effect: "worry", explanation: "Catastrophic thinking feeds anxiety and makes it harder to perform well. Your brain treats imagined threats as real ones." }
+                    ]
+                },
+                {
+                    text: "Your teacher asks a question and you think you know the answer but feel scared to speak up.",
+                    choices: [
+                        { text: "Take a breath and raise your hand, even if you're nervous", effect: "calm", explanation: "Facing fears in small doses builds confidence over time. Speaking up, even when nervous, strengthens your courage muscle." },
+                        { text: "Stay quiet and hope someone else answers", effect: "worry", explanation: "Avoiding participation reinforces anxiety and missed opportunities for growth. Your comfort zone stays small when you don't challenge it." },
+                        { text: "Look at your phone under the desk to avoid the moment", effect: "worry", explanation: "Using devices to escape uncomfortable moments prevents you from building resilience and can increase social anxiety." }
+                    ]
+                },
+                {
+                    text: "You're struggling with homework and feeling overwhelmed by how much you have to do.",
+                    choices: [
+                        { text: "Break it down into small chunks and tackle one subject at a time", effect: "calm", explanation: "Breaking big tasks into smaller pieces makes them manageable and builds momentum. Your brain handles small steps better than overwhelming loads." },
+                        { text: "Procrastinate by scrolling TikTok and worry about it later", effect: "worry", explanation: "Procrastination increases anxiety over time as deadlines approach. The task feels bigger and scarier the longer you avoid it." },
+                        { text: "Panic and think 'I'll never get all this done'", effect: "worry", explanation: "Catastrophic thinking creates mental paralysis. When you tell yourself you can't do something, your brain believes it and stops trying." }
+                    ]
+                },
+                {
+                    text: "It's lunch time and you're looking for somewhere to sit, feeling anxious about eating alone.",
+                    choices: [
+                        { text: "Approach a friendly classmate and ask if you can join them", effect: "calm", explanation: "Taking social risks in small doses builds confidence. Most people are happy to include others, and connection reduces anxiety." },
+                        { text: "Eat quickly while scrolling your phone to look busy", effect: "worry", explanation: "Using phones to avoid social interaction keeps you isolated and reinforces social anxiety. It prevents real connection." },
+                        { text: "Skip lunch and go to the library to avoid the social stress", effect: "worry", explanation: "Avoiding social situations makes them scarier over time. You also miss nutrition your brain needs to manage stress." }
+                    ]
+                },
+                {
+                    text: "You get back a test grade that's lower than you hoped for.",
+                    choices: [
+                        { text: "Review what you missed and ask the teacher for help understanding", effect: "calm", explanation: "Learning from mistakes builds actual improvement and shows your brain that setbacks are fixable, not catastrophic." },
+                        { text: "Text your friends immediately to complain and compare grades", effect: "worry", explanation: "Comparison often increases anxiety and doesn't help you improve. It can also damage friendships if it becomes competitive." },
+                        { text: "Think 'I'm terrible at this subject' and feel hopeless", effect: "worry", explanation: "Fixed mindset thinking ('I'm bad at this') creates learned helplessness. Growth mindset ('I can improve') builds resilience." }
+                    ]
+                },
+                {
+                    text: "You have a group project due and your teammates aren't responding to your messages.",
+                    choices: [
+                        { text: "Focus on completing your part well and update the teacher if needed", effect: "calm", explanation: "Controlling what you can control reduces anxiety. Teachers appreciate students who communicate proactively about group challenges." },
+                        { text: "Send increasingly frantic messages and check your phone constantly", effect: "worry", explanation: "Obsessive checking amplifies anxiety and doesn't change others' behavior. It keeps you in a reactive, stressed state." },
+                        { text: "Assume the project will fail and stop trying on your part", effect: "worry", explanation: "Catastrophic thinking leads to self-fulfilling prophecies. Doing your best regardless of others maintains your self-respect." }
+                    ]
+                },
+                {
+                    text: "You're running late for school and forgot to do an assignment that's due today.",
+                    choices: [
+                        { text: "Accept the situation, go to school normally, and speak with the teacher", effect: "calm", explanation: "Accepting reality and taking responsibility builds trust with teachers and reduces the stress of trying to hide mistakes." },
+                        { text: "Skip school entirely to avoid facing the teacher", effect: "worry", explanation: "Avoidance makes problems bigger and creates more anxiety. Missing school adds to your stress rather than solving it." },
+                        { text: "Rush through the assignment in the car, doing poor work", effect: "worry", explanation: "Panic-driven work usually makes things worse and increases stress. It's better to explain honestly than submit poor quality work." }
+                    ]
+                },
+                {
+                    text: "You don't understand the math lesson and the teacher is moving on quickly.",
+                    choices: [
+                        { text: "Write down your specific questions to ask after class or during office hours", effect: "calm", explanation: "Identifying specific confusion helps teachers help you effectively. Seeking help shows maturity and prevents falling further behind." },
+                        { text: "Give up listening and scroll social media under your desk", effect: "worry", explanation: "Checking out mentally makes the gap in understanding bigger and creates more anxiety about future lessons." },
+                        { text: "Worry that everyone else gets it and you're the only one confused", effect: "worry", explanation: "Comparison and assumption often make us feel worse. Many students have similar questions but don't ask them." }
+                    ]
+                },
+                {
+                    text: "Your friends are talking about colleges and you have no idea what you want to do.",
+                    choices: [
+                        { text: "Listen to learn about their interests and share that you're still exploring", effect: "calm", explanation: "Being honest about uncertainty is normal and healthy. Most people change their minds multiple times about career paths." },
+                        { text: "Pretend you have it all figured out to fit in with the conversation", effect: "worry", explanation: "Pretending creates anxiety about being 'found out' and prevents you from getting helpful information or support." },
+                        { text: "Feel panic that everyone else has their life planned except you", effect: "worry", explanation: "Comparison anxiety ignores the fact that most teens feel uncertain about the future. Social media and conversations show only one side." }
+                    ]
+                },
+                {
+                    text: "You're in study hall but can't focus because of noise around you.",
+                    choices: [
+                        { text: "Move to a quieter spot or ask the teacher about using the library", effect: "calm", explanation: "Advocating for your learning needs shows self-awareness and helps you succeed. Most teachers appreciate students who take initiative." },
+                        { text: "Sit there frustrated and scroll your phone instead of studying", effect: "worry", explanation: "Passive frustration wastes time and increases stress about unprepared work. Taking action gives you back control." },
+                        { text: "Get annoyed and assume you'll fail because you can't concentrate", effect: "worry", explanation: "All-or-nothing thinking makes small problems feel catastrophic. There are usually multiple solutions to concentration challenges." }
+                    ]
+                },
+                {
+                    text: "You see other students cheating on a test you studied hard for.",
+                    choices: [
+                        { text: "Focus on your own test and trust that your honest effort matters", effect: "calm", explanation: "Staying in your own lane reduces stress and maintains your integrity. Honest work builds real knowledge and self-respect." },
+                        { text: "Get distracted watching them and lose focus on your own answers", effect: "worry", explanation: "Focusing on others' behavior hurts your own performance and increases anxiety. You can't control others, only yourself." },
+                        { text: "Feel angry and bitter that others have an 'unfair advantage'", effect: "worry", explanation: "Resentment steals mental energy from your own performance. Cheaters often get caught eventually and miss out on real learning." }
+                    ]
+                },
+                {
+                    text: "You have to give an oral report but your voice shakes when you practice.",
+                    choices: [
+                        { text: "Practice deep breathing and remind yourself that nervousness is normal", effect: "calm", explanation: "Accepting nervousness as normal reduces the anxiety about being anxious. Most people don't notice shaky voices as much as speakers think." },
+                        { text: "Keep practicing obsessively, hoping to eliminate all nervousness", effect: "worry", explanation: "Over-preparation can increase anxiety. Some nervousness actually shows you care and can improve performance when channeled well." },
+                        { text: "Consider faking sick on presentation day to avoid it", effect: "worry", explanation: "Avoidance makes the fear bigger for next time. Facing fears in small doses builds confidence even if the first attempt isn't perfect." }
+                    ]
+                }
+            ],
+            social: [
+                {
+                    text: "Your friends are making plans and you want to join but feel worried about fitting in.",
+                    choices: [
+                        { text: "Send a message saying you'd like to join and ask for details", effect: "calm", explanation: "Direct communication builds stronger friendships and reduces the anxiety of uncertainty. Most people appreciate honesty." },
+                        { text: "Wait to see if they invite you and worry about being left out", effect: "worry", explanation: "Passive waiting increases anxiety and gives you less control over the outcome. It also makes friends think you're not interested." },
+                        { text: "Scroll through their social media posts feeling increasingly anxious", effect: "worry", explanation: "Social media stalking feeds comparison anxiety and gives you incomplete information. It increases FOMO without providing real connection." }
+                    ]
+                },
+                {
+                    text: "Someone in your friend group says something that hurts your feelings.",
+                    choices: [
+                        { text: "Take a breath and calmly tell them how their comment affected you", effect: "calm", explanation: "Direct, calm communication builds trust and teaches people how to treat you. Most people don't realize when they've been hurtful." },
+                        { text: "Say nothing but post a vague, passive-aggressive story on social media", effect: "worry", explanation: "Indirect communication creates more drama and confusion. It doesn't solve the problem and often makes relationships more tense." },
+                        { text: "Replay the comment over and over, getting more upset each time", effect: "worry", explanation: "Rumination amplifies hurt feelings and creates stories in your head that may not be true. It keeps you stuck in negative emotions." }
+                    ]
+                },
+                {
+                    text: "You want to hang out with someone but you're worried they might say no.",
+                    choices: [
+                        { text: "Send a casual text suggesting a specific activity you could do together", effect: "calm", explanation: "Making specific plans shows genuine interest and makes it easier for people to say yes. Rejection isn't personal - people are busy." },
+                        { text: "Drop hints on social media hoping they'll ask you to hang out", effect: "worry", explanation: "Indirect communication rarely gets you what you want and creates unnecessary anxiety about whether people understand your hints." },
+                        { text: "Convince yourself they probably don't want to hang out anyway", effect: "worry", explanation: "Negative assumptions protect you from disappointment but also prevent real connections. Most rejection isn't about your worth as a person." }
+                    ]
+                },
+                {
+                    text: "Your friends are talking about something you don't understand and you feel left out.",
+                    choices: [
+                        { text: "Ask a curious question like 'What's that about?' to join the conversation", effect: "calm", explanation: "Curiosity connects you to others and shows you're interested in their world. Most people enjoy explaining things they care about." },
+                        { text: "Pretend to know what they're talking about and nod along", effect: "worry", explanation: "Pretending creates anxiety about being 'found out' and prevents you from actually learning or connecting with your friends." },
+                        { text: "Check your phone and mentally withdraw from the group", effect: "worry", explanation: "Phone use to escape social discomfort increases isolation and makes you feel more left out, not less." }
+                    ]
+                },
+                {
+                    text: "You see your crush talking to someone else and feel jealous.",
+                    choices: [
+                        { text: "Remind yourself that having friends doesn't mean they're not interested in you", effect: "calm", explanation: "Healthy relationships include friendships with others. Jealousy often comes from insecurity rather than real threats." },
+                        { text: "Stalk their social media to see if they're dating the other person", effect: "worry", explanation: "Social media investigation feeds anxiety and rarely provides the reassurance you're seeking. It usually makes jealousy worse." },
+                        { text: "Assume they're not interested and avoid talking to them", effect: "worry", explanation: "Assumptions often protect us from imagined rejection but prevent real connections. Most social fears are worse in our heads than reality." }
+                    ]
+                },
+                {
+                    text: "You made plans with a friend but they cancelled last minute.",
+                    choices: [
+                        { text: "Feel disappointed but make other plans for yourself", effect: "calm", explanation: "Disappointment is normal, but having backup plans and self-care shows resilience. Not everything is about you personally." },
+                        { text: "Assume they don't really want to be friends and feel rejected", effect: "worry", explanation: "One cancellation rarely means rejection. People have busy lives and emergencies. Catastrophic thinking damages relationships." },
+                        { text: "Spend the evening scrolling their social media to see what they're really doing", effect: "worry", explanation: "Social media stalking after disappointment usually makes you feel worse and creates unnecessary drama in your head." }
+                    ]
+                },
+                {
+                    text: "Your friend group is having drama and people are choosing sides.",
+                    choices: [
+                        { text: "Stay neutral and focus on maintaining individual friendships", effect: "calm", explanation: "Drama usually passes, but taking sides can permanently damage relationships. Being Switzerland often works better long-term." },
+                        { text: "Get fully involved in the drama and pick a side immediately", effect: "worry", explanation: "Jumping into drama often escalates situations and can leave you with enemies when the dust settles." },
+                        { text: "Stress about losing all your friends and imagine worst-case scenarios", effect: "worry", explanation: "Catastrophic thinking about friendship drama usually overestimates the actual consequences. Most teen drama resolves within weeks." }
+                    ]
+                },
+                {
+                    text: "You're at a party where you don't know many people and feel awkward.",
+                    choices: [
+                        { text: "Find one person who seems friendly and start a simple conversation", effect: "calm", explanation: "Most people at parties feel some social anxiety. Starting with one person is less overwhelming than trying to work the whole room." },
+                        { text: "Stand in the corner scrolling your phone to look busy", effect: "worry", explanation: "Phone use as social protection actually makes you less approachable and more isolated. It prevents natural connections." },
+                        { text: "Leave early because you assume everyone thinks you're weird", effect: "worry", explanation: "The spotlight effect makes us think people notice us more than they do. Most people are focused on themselves, not judging you." }
+                    ]
+                },
+                {
+                    text: "Someone you thought was a friend is spreading rumors about you.",
+                    choices: [
+                        { text: "Address it directly with them and ask for an explanation", effect: "calm", explanation: "Direct communication often resolves misunderstandings and shows maturity. Sometimes rumors come from miscommunication." },
+                        { text: "Start spreading rumors about them in retaliation", effect: "worry", explanation: "Revenge usually escalates drama and makes you look just as bad. It rarely makes you feel better long-term." },
+                        { text: "Assume everyone believes the rumors and avoid social situations", effect: "worry", explanation: "Most people don't take rumors seriously and forget them quickly. Avoiding friends because of one person's behavior punishes the wrong people." }
+                    ]
+                },
+                {
+                    text: "Your best friend seems distant lately and you don't know why.",
+                    choices: [
+                        { text: "Ask them directly if everything is okay and if you did something wrong", effect: "calm", explanation: "Direct communication prevents misunderstandings from growing. Often distance has nothing to do with you personally." },
+                        { text: "Analyze every recent interaction to figure out what you did wrong", effect: "worry", explanation: "Rumination rarely provides answers and increases anxiety. Sometimes people have personal issues that aren't about your friendship." },
+                        { text: "Start acting cold toward them to protect yourself from more hurt", effect: "worry", explanation: "Defensive behavior often creates the very rejection you're trying to avoid. It can end friendships that could have been saved with communication." }
+                    ]
+                },
+                {
+                    text: "You're invited to two different events on the same day by different friend groups.",
+                    choices: [
+                        { text: "Be honest with both groups about the conflict and choose based on your feelings", effect: "calm", explanation: "Honesty prevents resentment and shows respect for both groups. True friends understand that scheduling conflicts happen." },
+                        { text: "Make up an excuse to one group to avoid having to choose", effect: "worry", explanation: "Lies often get discovered and create more problems than honesty. It also prevents friends from understanding your real situation." },
+                        { text: "Stress about disappointing people and consider not going to either", effect: "worry", explanation: "All-or-nothing thinking often leads to missing out on fun. Making choices is part of life and most people understand conflicts." }
+                    ]
+                }
+            ],
+            family: [
+                {
+                    text: "Your parents are asking about your grades and you're feeling defensive.",
+                    choices: [
+                        { text: "Take a breath and share honestly about what you're struggling with", effect: "calm", explanation: "Honest communication with parents often leads to support rather than punishment. They want to help you succeed." },
+                        { text: "Get angry and storm off to your room", effect: "worry", explanation: "Emotional reactions shut down communication and often make parents more worried, leading to more questions and restrictions." },
+                        { text: "Make excuses and blame teachers or circumstances", effect: "worry", explanation: "Blame prevents you from taking control of your situation and learning from challenges. It also reduces trust with parents." }
+                    ]
+                },
+                {
+                    text: "There's tension at home and your family members are arguing.",
+                    choices: [
+                        { text: "Go to your room calmly and do something that helps you feel grounded", effect: "calm", explanation: "Removing yourself from family conflict protects your mental energy and models healthy boundaries. You can't control others' emotions." },
+                        { text: "Try to fix the argument by getting involved", effect: "worry", explanation: "Taking responsibility for others' conflicts creates anxiety and rarely solves the problem. Family dynamics are complex and not your job to fix." },
+                        { text: "Escape by scrolling your phone, but feel anxious about the tension", effect: "worry", explanation: "Phone use during family stress provides temporary escape but doesn't help you process emotions or develop coping skills." }
+                    ]
+                },
+                {
+                    text: "Your parents set a rule you don't agree with.",
+                    choices: [
+                        { text: "Wait for a calm moment and ask to discuss their reasoning", effect: "calm", explanation: "Approaching parents with curiosity rather than anger often leads to better understanding and sometimes compromise." },
+                        { text: "Argue immediately and try to prove they're being unfair", effect: "worry", explanation: "Immediate arguments usually escalate emotions and make parents less likely to listen to your perspective." },
+                        { text: "Agree outwardly but plan to break the rule secretly", effect: "worry", explanation: "Secretive behavior creates anxiety about being caught and damages trust, often leading to stricter rules." }
+                    ]
+                }
+            ],
+            performance: [
+                {
+                    text: "You have to give a presentation in front of the class tomorrow.",
+                    choices: [
+                        { text: "Practice once more, then do a quick breathing exercise to calm your nerves", effect: "calm", explanation: "Balanced preparation plus anxiety management builds confidence. Over-practicing can increase anxiety, but some preparation plus calming techniques helps." },
+                        { text: "Stay up all night practicing and googling 'how to not be nervous'", effect: "worry", explanation: "Over-preparation and late-night anxiety research usually increase worry rather than confidence. Your brain needs rest to perform well." },
+                        { text: "Avoid thinking about it and hope you'll figure it out tomorrow", effect: "worry", explanation: "Avoidance increases anxiety because your brain keeps the presentation as an 'open loop' threat. Some preparation reduces uncertainty." }
+                    ]
+                },
+                {
+                    text: "You're trying out for a team or activity and feeling nervous about being judged.",
+                    choices: [
+                        { text: "Remind yourself that everyone is focused on their own performance", effect: "calm", explanation: "The spotlight effect makes us think people notice us more than they do. Most people are worried about themselves, not judging you." },
+                        { text: "Compare yourself to everyone else and assume you're not good enough", effect: "worry", explanation: "Comparison anxiety makes you focus on others' strengths and your weaknesses. Everyone has different strengths and growth areas." },
+                        { text: "Scroll social media to see if others posted about tryouts", effect: "worry", explanation: "Social media checking during anxious times usually increases comparison anxiety rather than providing helpful information." }
+                    ]
+                },
+                {
+                    text: "You made a mistake during a performance or game and feel embarrassed.",
+                    choices: [
+                        { text: "Take a breath, refocus on the next play, and remember everyone makes mistakes", effect: "calm", explanation: "Self-compassion and present-moment focus help you recover from mistakes. Dwelling on errors makes future mistakes more likely." },
+                        { text: "Replay the mistake over and over in your head", effect: "worry", explanation: "Rumination keeps you stuck in the past and increases anxiety about future performances. Your brain needs to move forward." },
+                        { text: "Assume everyone is judging you and feel like quitting", effect: "worry", explanation: "The spotlight effect makes mistakes feel bigger than they are. Most people forget others' mistakes quickly because they're focused on themselves." }
+                    ]
+                }
+            ],
+            digital: [
+                {
+                    text: "You're feeling stressed and automatically reach for your phone.",
+                    choices: [
+                        { text: "Use a mindfulness app for 3 minutes instead of scrolling", effect: "calm", explanation: "Mindful phone use turns your device into a tool for calm rather than distraction. Short meditations can reset your nervous system." },
+                        { text: "Scroll through social media to 'relax'", effect: "worry", explanation: "Mindless scrolling often increases stress and comparison anxiety, especially when you're already feeling vulnerable." },
+                        { text: "Check multiple apps rapidly, jumping between them", effect: "worry", explanation: "App-jumping creates mental chaos and prevents your brain from settling. It's like mental junk food - temporarily satisfying but ultimately draining." }
+                    ]
+                },
+                {
+                    text: "You see a post that makes you feel like your life isn't as exciting as others'.",
+                    choices: [
+                        { text: "Remind yourself that social media shows highlight reels, not full reality", effect: "calm", explanation: "Social media literacy helps protect against comparison anxiety. People share their best moments, not their struggles or boring daily life." },
+                        { text: "Scroll through more posts to see what else you're 'missing out' on", effect: "worry", explanation: "Comparison scrolling feeds FOMO and makes you feel worse about your own life. It's like picking at a wound - it doesn't help it heal." },
+                        { text: "Feel bad about yourself and wonder why your life is so boring", effect: "worry", explanation: "Social media comparison creates unrealistic standards for daily life. Most of life is ordinary, and that's normal and healthy." }
+                    ]
+                },
+                {
+                    text: "It's late at night and you know you should sleep, but you keep scrolling.",
+                    choices: [
+                        { text: "Put your phone in another room and try a relaxing activity like reading", effect: "calm", explanation: "Physical distance from phones reduces temptation. Non-screen activities help your brain wind down for better sleep." },
+                        { text: "Tell yourself 'just five more minutes' and keep scrolling", effect: "worry", explanation: "Late-night scrolling disrupts sleep cycles and often leads to hours of lost sleep. 'Just five more minutes' rarely stops at five." },
+                        { text: "Switch to 'just watching videos' thinking that's better than social media", effect: "worry", explanation: "All screens before bed disrupt sleep by keeping your brain alert. The blue light and mental stimulation prevent natural sleepiness." }
+                    ]
+                },
+                {
+                    text: "Someone posted something that made you angry or upset.",
+                    choices: [
+                        { text: "Take a breath and either respond thoughtfully or don't respond at all", effect: "calm", explanation: "Pausing before reacting prevents you from saying something you'll regret. Sometimes not engaging is the wisest choice." },
+                        { text: "Immediately fire back with an angry comment", effect: "worry", explanation: "Reactive responses often escalate conflicts and can damage relationships or your reputation. Once posted, comments are hard to take back." },
+                        { text: "Screenshot it to complain to your friends about how wrong they are", effect: "worry", explanation: "Venting to friends can feel good temporarily but keeps you stuck in negative emotions and can spread drama." }
+                    ]
+                },
+                {
+                    text: "You get a notification while doing homework and feel the urge to check it immediately.",
+                    choices: [
+                        { text: "Put your phone in do-not-disturb mode and finish your current task", effect: "calm", explanation: "Protecting your focus time improves both your work quality and reduces stress. Most notifications aren't actually urgent." },
+                        { text: "Quickly check 'just this one notification' which turns into 30 minutes of scrolling", effect: "worry", explanation: "Notification checking rarely stops at one. The dopamine hit makes it hard to return to less immediately rewarding tasks like homework." },
+                        { text: "Keep your phone nearby and check every notification as it comes in", effect: "worry", explanation: "Constant interruption fragments your attention and makes tasks take longer, increasing stress and reducing quality." }
+                    ]
+                },
+                {
+                    text: "You're walking to school and see everyone else on their phones.",
+                    choices: [
+                        { text: "Enjoy the walk and notice your surroundings instead of pulling out your phone", effect: "calm", explanation: "Mindful walking reduces anxiety and helps you start the day centered. Not everything requires digital distraction." },
+                        { text: "Pull out your phone so you don't look weird walking without one", effect: "worry", explanation: "Using phones to avoid imagined social judgment often disconnects you from your environment and increases anxiety." },
+                        { text: "Worry that you're missing important messages and frantically check all your apps", effect: "worry", explanation: "FOMO about digital communication creates unnecessary stress. Most messages can wait the 10 minutes it takes to walk to school." }
+                    ]
+                },
+                {
+                    text: "Your phone battery dies and you realize you'll be without it for hours.",
+                    choices: [
+                        { text: "See it as an opportunity to be more present and engaged with your surroundings", effect: "calm", explanation: "Phone-free time often increases focus, reduces anxiety, and improves real-world connections. It's a mental break most people need." },
+                        { text: "Feel anxious about missing messages and borrow someone else's phone to check social media", effect: "worry", explanation: "Phone anxiety shows how dependent we've become on constant connection. Learning to tolerate brief disconnection builds resilience." },
+                        { text: "Worry that something important will happen and you won't know about it", effect: "worry", explanation: "FOMO about being unreachable often overestimates how much we actually miss. True emergencies are rare and people find ways to reach you." }
+                    ]
+                },
+                {
+                    text: "You see that all your friends are online but no one has texted you back yet.",
+                    choices: [
+                        { text: "Remind yourself that people have different texting habits and do something else", effect: "calm", explanation: "Not every delay in communication is personal. People have different response styles and may be busy even when online." },
+                        { text: "Keep checking to see if they've read your messages and feel increasingly ignored", effect: "worry", explanation: "Obsessive message checking amplifies feelings of rejection and doesn't change response times. It keeps you in an anxious loop." },
+                        { text: "Assume they're all hanging out without you and feel left out", effect: "worry", explanation: "Social media activity doesn't tell the full story. People can be online for many reasons that have nothing to do with excluding you." }
+                    ]
+                },
+                {
+                    text: "You want to post something but worry about how many likes or comments you'll get.",
+                    choices: [
+                        { text: "Post what feels authentic to you without focusing on the response", effect: "calm", explanation: "Authentic posting connects you with people who genuinely appreciate your content. Engagement metrics don't determine your worth." },
+                        { text: "Spend an hour editing and rewriting to make it 'perfect' for maximum likes", effect: "worry", explanation: "Over-optimizing posts for engagement often makes them feel fake and increases anxiety about performance rather than connection." },
+                        { text: "Decide not to post anything because you're worried about judgment", effect: "worry", explanation: "Fear of judgment prevents authentic self-expression and connection. Most people are more supportive than our anxiety predicts." }
+                    ]
+                },
+                {
+                    text: "You're using your phone to avoid an uncomfortable conversation happening around you.",
+                    choices: [
+                        { text: "Put your phone away and stay present, even if it feels uncomfortable", effect: "calm", explanation: "Tolerating social discomfort builds emotional resilience. Avoiding difficult moments with phone use prevents you from learning social skills." },
+                        { text: "Keep scrolling to escape the awkwardness and tension in the room", effect: "worry", explanation: "Using phones to escape uncomfortable emotions prevents you from developing coping skills and often makes situations more awkward." },
+                        { text: "Pretend to be busy on your phone while listening to the drama unfold", effect: "worry", explanation: "Fake phone use during tense moments often increases anxiety because you're not fully engaged or fully removed from the situation." }
+                    ]
+                },
+                {
+                    text: "You see your ex posting about their new relationship on social media.",
+                    choices: [
+                        { text: "Unfollow or mute them to protect your emotional well-being", effect: "calm", explanation: "Protecting yourself from painful content shows self-awareness and emotional intelligence. You can't heal while constantly reopening the wound." },
+                        { text: "Stalk all their posts and analyze everything about their new relationship", effect: "worry", explanation: "Social media stalking after breakups prolongs pain and prevents healing. It's like picking at a scab - it just makes recovery take longer." },
+                        { text: "Feel devastated and post something to try to make them jealous", effect: "worry", explanation: "Reactive posting rarely achieves the desired effect and often makes you look desperate rather than happy. It keeps you emotionally tied to the past." }
+                    ]
+                }
+            ],
+            daily: [
+                {
+                    text: "You wake up feeling anxious about the day ahead.",
+                    choices: [
+                        { text: "Take 5 deep breaths and think of one thing you're looking forward to", effect: "calm", explanation: "Morning breathing exercises activate your calm nervous system. Focusing on positive anticipation sets a better tone for your day." },
+                        { text: "Check your phone immediately to distract from the anxious feelings", effect: "worry", explanation: "Phone checking first thing floods your brain with information before it's ready to process it calmly. It often increases rather than reduces morning anxiety." },
+                        { text: "Think about everything that could go wrong today", effect: "worry", explanation: "Catastrophic thinking in the morning primes your brain for anxiety all day. Your nervous system treats imagined threats as real ones." }
+                    ]
+                },
+                {
+                    text: "You're feeling hungry but stressed, and you're not sure what to eat.",
+                    choices: [
+                        { text: "Choose something with protein and drink some water", effect: "calm", explanation: "Protein helps stabilize blood sugar and mood. Dehydration can increase anxiety symptoms, so water helps your brain function better." },
+                        { text: "Grab whatever's quickest, like chips or candy", effect: "worry", explanation: "High-sugar, low-nutrition foods cause blood sugar spikes and crashes that can worsen anxiety and mood swings." },
+                        { text: "Skip eating because you're too stressed to think about food", effect: "worry", explanation: "Skipping meals drops blood sugar, which can increase anxiety symptoms. Your brain needs steady fuel to manage stress effectively." }
+                    ]
+                },
+                {
+                    text: "It's the end of a stressful day and you want to unwind.",
+                    choices: [
+                        { text: "Do something calming like listening to music, reading, or taking a shower", effect: "calm", explanation: "Calming activities help your nervous system transition from stress to rest. They signal to your brain that the stressful part of the day is over." },
+                        { text: "Scroll through your phone in bed to 'relax'", effect: "worry", explanation: "Screen time before bed keeps your brain alert when it should be winding down. The blue light and mental stimulation can disrupt sleep." },
+                        { text: "Replay all the stressful parts of your day in your head", effect: "worry", explanation: "Mental replay of stress keeps your nervous system activated when it needs to rest. It doesn't solve problems and often makes them feel bigger." }
+                    ]
+                }
+            ]
+        };
+
+        // Enhanced randomization to avoid repeats across sessions
+        function getRandomScenarios(context, count = 5) {
+            const contextScenarios = scenarios[context] || scenarios.school;
+
+            // Get recently used scenarios from localStorage to avoid immediate repeats
+            const storageKey = `dragonGame_recent_${context}`;
+            let recentScenarios = [];
+            try {
+                recentScenarios = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            } catch (e) {
+                recentScenarios = [];
+            }
+
+            // Filter out recently used scenarios if we have enough others
+            let availableScenarios = contextScenarios;
+            if (contextScenarios.length > count + recentScenarios.length) {
+                availableScenarios = contextScenarios.filter(scenario =>
+                    !recentScenarios.some(recent => recent.text === scenario.text)
+                );
+            }
+
+            // If we don't have enough non-recent scenarios, use all scenarios
+            if (availableScenarios.length < count) {
+                availableScenarios = contextScenarios;
+                // Clear old recent scenarios to start fresh
+                localStorage.removeItem(storageKey);
+                recentScenarios = [];
+            }
+
+            // Shuffle and select scenarios
+            const shuffled = [...availableScenarios].sort(() => Math.random() - 0.5);
+            const selected = shuffled.slice(0, Math.min(count, shuffled.length));
+
+            // Update recently used scenarios (keep last 5)
+            const updatedRecent = [...selected, ...recentScenarios].slice(0, 5);
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(updatedRecent));
+            } catch (e) {
+                // localStorage might be disabled, continue without caching
+            }
+
+            return selected;
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showModeSelection() {
+            showScreen('mode-screen');
+        }
+
+        function selectMode(mode) {
+            gameState.mode = mode;
+            document.getElementById('session-type').textContent = mode === 'learning' ? 'Learning Mode' : 'Reality Check';
+            showScreen('context-screen');
+        }
+
+        function selectContext(context) {
+            gameState.context = context;
+            gameState.currentQuestion = 0;
+            gameState.calmSize = 1;
+            gameState.worrySize = 1;
+            updateDragons();
+            loadQuestion();
+            showScreen('game-screen');
+        }
+
+        function loadQuestion() {
+            if (gameState.currentQuestion >= gameState.totalQuestions) {
+                showResults();
+                return;
+            }
+
+            // Use randomized scenarios for better replayability
+            if (!gameState.selectedScenarios) {
+                gameState.selectedScenarios = getRandomScenarios(gameState.context, gameState.totalQuestions);
+            }
+
+            const scenario = gameState.selectedScenarios[gameState.currentQuestion];
+
+            document.getElementById('scenario-text').textContent = scenario.text;
+            document.getElementById('current-question').textContent = gameState.currentQuestion + 1;
+
+            // Update progress bar
+            const progress = ((gameState.currentQuestion) / gameState.totalQuestions) * 100;
+            document.getElementById('question-progress').style.width = progress + '%';
+
+            // Create choice buttons with randomized order
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = '';
+
+            // Reset interface for new question
+            choicesContainer.style.display = 'block';
+            choicesContainer.classList.remove('fade-out');
+
+            // Shuffle the choices for randomized positioning
+            const shuffledChoices = [...scenario.choices].sort(() => Math.random() - 0.5);
+
+            shuffledChoices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.className = 'choice-button';
+                button.textContent = choice.text;
+                button.onclick = () => makeChoice(choice);
+                choicesContainer.appendChild(button);
+            });
+
+            // Hide explanation and next button
+            document.getElementById('explanation').classList.remove('show');
+            const nextButton = document.getElementById('next-button');
+            nextButton.classList.remove('show');
+
+            // Maintain current dragon sizes when loading new question
+            updateDragons();
+        }
+
+        function makeChoice(choice) {
+            // Update dragon sizes - when one grows, the other shrinks
+            if (choice.effect === 'calm') {
+                gameState.calmSize = Math.min(gameState.calmSize + 1, 5);
+                gameState.worrySize = Math.max(gameState.worrySize - 0.5, 0.5); // Shrink worry dragon
+                updateDragons(true, 'calm');
+            } else {
+                gameState.worrySize = Math.min(gameState.worrySize + 1, 5);
+                gameState.calmSize = Math.max(gameState.calmSize - 0.5, 0.5); // Shrink calm dragon
+                updateDragons(true, 'worry');
+            }
+
+            // Fade out choice buttons
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.classList.add('fade-out');
+
+            // After fade out, show explanation and next button
+            setTimeout(() => {
+                // Hide choice buttons and show explanation
+                choicesContainer.style.display = 'none';
+
+                document.getElementById('explanation-text').textContent = choice.explanation;
+                document.getElementById('explanation').classList.add('show');
+
+                // Show next button with a slight delay for better UX
+                setTimeout(() => {
+                    document.getElementById('next-button').classList.add('show');
+                }, 200);
+            }, 300); // Wait for fade out to complete
+        }
+
+        function updateDragons(animateGrowth = false, growthType = null) {
+            // Update sizes in display
+            document.getElementById('calm-size').textContent = gameState.calmSize.toFixed(1);
+            document.getElementById('worry-size').textContent = gameState.worrySize.toFixed(1);
+
+            // Calculate truly persistent scaling - dragons accumulate size over the game
+            const baseScale = 1.0;
+            const scaleIncrement = 0.25; // How much each point adds to size
+
+            // Each dragon grows based on its accumulated points and stays that size
+            const calmScale = baseScale + (gameState.calmSize - 1) * scaleIncrement;
+            const worryScale = baseScale + (gameState.worrySize - 1) * scaleIncrement;
+
+            // Ensure readable size but allow significant growth difference
+            const finalCalmScale = Math.max(0.8, Math.min(calmScale, 2.0)); // Cap at 2x for readability
+            const finalWorryScale = Math.max(0.8, Math.min(worryScale, 2.0));
+
+            const calmDragon = document.getElementById('calm-dragon-scaler');
+            const worryDragon = document.getElementById('worry-dragon-scaler');
+
+            // Apply growth animations if specified
+            if (animateGrowth && growthType) {
+                // Clear previous animations
+                calmDragon.classList.remove('dragon-growing-calm', 'dragon-growing-worry');
+                worryDragon.classList.remove('dragon-growing-calm', 'dragon-growing-worry');
+
+                if (growthType === 'calm') {
+                    calmDragon.style.setProperty('--target-scale', finalCalmScale);
+                    calmDragon.classList.add('dragon-growing-calm');
+
+                    // Remove animation class after animation completes, but keep the final scale
+                    setTimeout(() => {
+                        calmDragon.classList.remove('dragon-growing-calm');
+                        calmDragon.style.transform = `scale(${finalCalmScale})`;
+                        // Ensure other dragon maintains its size
+                        worryDragon.style.transform = `scale(${finalWorryScale})`;
+                    }, 1200);
+                } else if (growthType === 'worry') {
+                    worryDragon.style.setProperty('--target-scale', finalWorryScale);
+                    worryDragon.classList.add('dragon-growing-worry');
+
+                    // Remove animation class after animation completes, but keep the final scale
+                    setTimeout(() => {
+                        worryDragon.classList.remove('dragon-growing-worry');
+                        worryDragon.style.transform = `scale(${finalWorryScale})`;
+                        // Ensure other dragon maintains its size
+                        calmDragon.style.transform = `scale(${finalCalmScale})`;
+                    }, 1200);
+                }
+            } else {
+                // Static scaling without animation - both dragons maintain their earned sizes
+                calmDragon.style.transform = `scale(${finalCalmScale})`;
+                worryDragon.style.transform = `scale(${finalWorryScale})`;
+            }
+
+            // Update progress bar colors
+            const total = gameState.calmSize + gameState.worrySize - 2;
+            if (total > 0) {
+                const calmPercent = (gameState.calmSize - 1) / total * 100;
+                document.getElementById('question-progress').style.background =
+                    `linear-gradient(90deg, #4299e1 ${calmPercent}%, #e53e3e ${calmPercent}%)`;
+            }
+        }
+
+        function nextQuestion() {
+            gameState.currentQuestion++;
+            loadQuestion();
+        }
+
+        function showResults() {
+            // Update final dragon displays
+            document.getElementById('final-calm-size').textContent = gameState.calmSize.toFixed(1);
+            document.getElementById('final-worry-size').textContent = gameState.worrySize.toFixed(1);
+
+            const calmScale = 1 + (gameState.calmSize - 1) * 0.2;
+            const worryScale = 1 + (gameState.worrySize - 1) * 0.2;
+
+            document.getElementById('final-calm-dragon').style.transform = `scale(${calmScale})`;
+            document.getElementById('final-worry-dragon').style.transform = `scale(${worryScale})`;
+
+            // Generate results message
+            let message;
+            if (gameState.calmSize > gameState.worrySize) {
+                message = `Your Resilient Dragon grew stronger! You discovered ${gameState.calmSize - 1} calm-building patterns. These choices help you feel more grounded and confident.`;
+            } else if (gameState.worrySize > gameState.calmSize) {
+                message = `Your Anxious Dragon grew larger this time. You noticed ${gameState.worrySize - 1} worry-feeding patterns. Remember, all patterns can change with practice.`;
+            } else {
+                message = `Your dragons grew equally! This shows a balanced mix of patterns. Notice which approaches felt more natural to you.`;
+            }
+
+            if (gameState.mode === 'reality') {
+                message += " Understanding your real patterns is the first step toward building the calm you want.";
+            } else {
+                message += " Try Reality Check mode to see how your actual choices compare to what you learned here.";
+            }
+
+            document.getElementById('results-message').textContent = message;
+            showScreen('results-screen');
+        }
+
+        function restart() {
+            gameState = {
+                mode: gameState.mode, // Keep the current mode
+                context: null,
+                currentQuestion: 0,
+                calmSize: 1,
+                worrySize: 1,
+                totalQuestions: 5,
+                selectedScenarios: null // Reset scenarios for new context
+            };
+            showScreen('context-screen');
+        }
+
+        function goBack(screen) {
+            showScreen(screen + '-screen');
+        }
+    </script>
+</body>
+</html>
