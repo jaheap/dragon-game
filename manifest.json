@@ -29,14 +29,14 @@
       "name": "Quick Learning Session",
       "short_name": "Learn",
       "description": "Start a quick learning session about anxiety patterns",
-      "url": "./dragon-game.html?mode=learning",
+      "url": "./?mode=learning",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Reality Check",
       "short_name": "Reality",
       "description": "Track your actual patterns honestly",
-      "url": "./dragon-game.html?mode=reality",
+      "url": "./?mode=reality",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ]
